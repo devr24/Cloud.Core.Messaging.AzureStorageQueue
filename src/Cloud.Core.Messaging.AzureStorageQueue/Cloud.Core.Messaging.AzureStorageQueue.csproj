@@ -6,14 +6,14 @@
     <Company>Robert McCabe</Company>
     <Version>3.1</Version>
     <Authors>Robert McCabe</Authors>
-	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
-    <Copyright>Robert McCabe</Copyright>
+    <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+    <Copyright>Aylesbury Solutions Ltd</Copyright>
     <Description>An Azure specific implementation of the IMessenger and IReactiveMessenger which connects to Storage Queue.</Description>
     <PackageTags>Messaging Messenger Storage Queue Topic Cloud.Core .net-Core Core aspnetcore</PackageTags>
     <SignAssembly>false</SignAssembly>
     <ProjectGuid>{c6773449-7728-4096-83a0-dd296b03890e}</ProjectGuid>
-	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Messaging.AzureStorageQueue</RepositoryUrl>
-	<RepositoryType>Private</RepositoryType>
+    <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Messaging.AzureStorageQueue</RepositoryUrl>
+    <RepositoryType>Private</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
