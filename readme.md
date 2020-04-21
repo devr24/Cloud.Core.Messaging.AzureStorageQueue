@@ -1,10 +1,7 @@
 # **Cloud.Core.Messaging.AzureStorageQueue** 
-[![Build status](https://dev.azure.com/cloudcoreproject/CloudCore/_apis/build/status/Cloud.Core/Cloud.Core.Configuration_Package)](https://dev.azure.com/cloudcoreproject/CloudCore/_build/latest?definitionId=6) 
+[![Build status](https://dev.azure.com/cloudcoreproject/CloudCore/_apis/build/status/Cloud.Core%20Packages/Cloud.Core.Messenging.AzureQueueStorage_Package)](https://dev.azure.com/cloudcoreproject/CloudCore/_build/latest?definitionId=20) 
 ![Code Coverage](https://cloud1core.blob.core.windows.net/codecoveragebadges/Cloud.Core.Messaging.AzureStorageQueue-LineCoverage.png) 
-[![Cloud.Core.Configuration package in Cloud.Core feed in Azure Artifacts](https://feeds.dev.azure.com/cloudcoreproject/dfc5e3d0-a562-46fe-8070-7901ac8e64a0/_apis/public/Packaging/Feeds/8949198b-5c74-42af-9d30-e8c462acada6/Packages/e71ddf20-f66a-45da-b672-c32798cf1e51/Badge)](https://dev.azure.com/cloudcoreproject/CloudCore/_packaging?_a=package&feed=8949198b-5c74-42af-9d30-e8c462acada6&package=e71ddf20-f66a-45da-b672-c32798cf1e51&preferRelease=true)
-
-
----------------
+[![Cloud.Core.Messaging.AzureStorageQueue package in Cloud.Core feed in Azure Artifacts](https://feeds.dev.azure.com/cloudcoreproject/dfc5e3d0-a562-46fe-8070-7901ac8e64a0/_apis/public/Packaging/Feeds/8949198b-5c74-42af-9d30-e8c462acada6/Packages/590eaaba-691a-4488-accd-682c039c0553/Badge)](https://dev.azure.com/cloudcoreproject/CloudCore/_packaging?_a=package&feed=8949198b-5c74-42af-9d30-e8c462acada6&package=590eaaba-691a-4488-accd-682c039c0553&preferRelease=true)
 
 <div id="description">
 
