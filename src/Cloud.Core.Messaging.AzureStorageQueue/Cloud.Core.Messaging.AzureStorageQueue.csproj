@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Company>Robert McCabe</Company>
+    <Version>3.1</Version>
+    <Authors>Robert McCabe</Authors>
+	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+    <Copyright>Robert McCabe</Copyright>
+    <Description>An Azure specific implementation of the IMessenger and IReactiveMessenger which connects to Storage Queue.</Description>
+    <PackageTags>Messaging Messenger Storage Queue Topic Cloud.Core .net-Core Core aspnetcore</PackageTags>
+    <SignAssembly>false</SignAssembly>
+    <ProjectGuid>{c6773449-7728-4096-83a0-dd296b03890e}</ProjectGuid>
+	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Messaging.AzureStorageQueue</RepositoryUrl>
+	<RepositoryType>Private</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cloud.Core" Version="3.1.3514.150" />
+    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.18.0" />
+    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.2.1" />
+    <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="11.1.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.8" />
+    <PackageReference Include="System.Reactive.Core" Version="4.3.2" />
+    <PackageReference Include="System.Reactive.Linq" Version="4.3.2" />
+  </ItemGroup>
+
+</Project>
