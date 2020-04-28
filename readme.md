@@ -94,7 +94,7 @@ services.AddStorageQueueSingletonNamed<IReactiveMessenger>("QM2", "queueStorageI
 // add to factory using a key
 serviceCollection.AddQueueStorageSingleton<IMessenger>("tableStorageInstance3", "tenantId", "subscriptionId",
         ReceiverSetup = new ReceiverSetup { ... }, 
-        SenderSetup = new SenderSetup { ... });    // add to factory using instance name
+        SenderSetup = new SenderSetup { ... }); 
 
 // Sample consuming class.
 services.AddTransient<MyClass>();
@@ -105,18 +105,17 @@ Using the dependencies:
 ```csharp
 public class MyClass {
 
-	private readonly IReactiveMessenger _messageInstance1;
-	private readonly IReactiveMessenger _messageInstance2;
-	private readonly IMessenger _messageInstance3;
+    private readonly IReactiveMessenger _messageInstance1;
+    provate readonly IReactiveMessenger _messageInstance2;
+    private readonly IMessenger _messageInstance3;
 
-	public MyClass(NamedInstanceFactory<IReactiveMessenger> messengerFactor, IMessenger singleMessengerInstance) 
-	{	
-		_messageInstance1 = messengerFactor["QM1"];
-		_messageInstance2 = messengerFactor["QM2"];
-		_messageInstance3 = singleMessengerInstance;
-	}
-	
-	...
+    public MyClass(NamedInstanceFactory<IReactiveMessenger> messengerFactor, IMessenger singleMessengerInstance) 
+    {	
+	_messageInstance1 = messengerFactor["QM1"];
+	_messageInstance2 = messengerFactor["QM2"];
+	_messageInstance3 = singleMessengerInstance;
+    }	
+    ...
 }
 ```
 
