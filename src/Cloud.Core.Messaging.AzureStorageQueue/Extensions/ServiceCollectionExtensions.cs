@@ -132,5 +132,16 @@
                 services.AddSingleton<NamedInstanceFactory<IReactiveMessenger>>();
             }
         }
+
+        /// <summary>
+        /// Search through the service collection for a particular object type.
+        /// </summary>
+        /// <param name="services">IServiceCollection to check.</param>
+        /// <param name="objectTypeToFind">Type of object to find.</param>
+        /// <returns>Boolean true if service exists and false if not.</returns>
+        public static bool ContainsService(this IServiceCollection services, Type objectTypeToFind)
+        {
+            return services.Any(x => x.ServiceType == objectTypeToFind);
+        }
     }
 }

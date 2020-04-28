@@ -6,6 +6,7 @@ using Cloud.Core.Messaging.AzureStorageQueue.Models;
 using Cloud.Core.Testing;
 using FluentAssertions;
 using Microsoft.Azure.Storage.Queue;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -196,6 +197,59 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
             Assert.True(senderSetup.MaxMessageSizeBytes > 0);
             Assert.True(senderSetup.MaxMessageSizeKb > 0);
             senderSetup.ToString().Should().NotBeNullOrEmpty();
+        }
+
+
+        /// <summary>Add multiple instances and ensure queue storage named instance factory resolves as expected.</summary>
+        [Fact]
+        public void Test_ServiceCollection_NamedInstances()
+        {
+            // Arrange
+            IServiceCollection serviceCollection = new ServiceCollection();
+
+            // Act/Assert
+            serviceCollection.ContainsService(typeof(IReactiveMessenger)).Should().BeFalse();
+            serviceCollection.ContainsService(typeof(IMessenger)).Should().BeFalse();
+            serviceCollection.ContainsService(typeof(INamedInstance)).Should().BeFalse();
+
+            serviceCollection.AddStorageQueueSingletonNamed<IReactiveMessenger>("QS1", "queueStorageInstance1", "test", "test");
+            serviceCollection.AddStorageQueueSingletonNamed<IMessenger>("QS2", "queueStorageInstance2", "test", "test");
+            serviceCollection.AddStorageQueueSingleton<IReactiveMessenger>("queueStorageInstance3", "test", "test");
+            serviceCollection.AddStorageQueueSingleton<IMessenger>("queueStorageInstance4", "test", "test");
+
+            serviceCollection.ContainsService(typeof(IReactiveMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(IMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<IReactiveMessenger>)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<IMessenger>)).Should().BeTrue();
+
+            var provider = serviceCollection.BuildServiceProvider();
+            var namedInstanceProv = provider.GetService<NamedInstanceFactory<IMessenger>>();
+            namedInstanceProv.Should().NotBeNull();
+
+            namedInstanceProv["QS2"].Should().NotBeNull();
+            namedInstanceProv["queueStorageInstance4"].Should().NotBeNull();
+        }
+
+        /// <summary>Ensure config instance name is setup as expected.</summary>
+        [Fact]
+        public void Test_ConnectionConfig_InstanceName()
+        {
+            // Arrange
+            var config1 = new ConnectionConfig();
+            var config2 = new ConnectionConfig();
+            var config3 = new ConnectionConfig();
+            var config4 = new ConnectionConfig();
+
+            // Act
+            config2.ConnectionString = "AB";
+            config3.ConnectionString = "A;B";
+            config4.ConnectionString = "A;AccountName=B;C";
+
+            // Assert
+            config1.InstanceName.Should().BeNull();
+            config2.InstanceName.Should().Be(null);
+            config3.InstanceName.Should().Be(null);
+            config4.InstanceName.Should().Be("B");
         }
     }
 }
