@@ -17,7 +17,10 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Models
         public MessageEntity(T body, KeyValuePair<string, object>[] props)
         {
             Body = body;
-            Properties = props?.AsDictionary();
+            if (!props.IsNullOrDefault())
+            {
+                Properties = new Dictionary<string, object>(props);
+            }
         }
 
         public T Body { get; set; }
@@ -35,7 +38,13 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Models
 
         public static MessageEntity<T> FromJson(CloudQueueMessage msg)
         {
-            var converted = JsonConvert.DeserializeObject(msg.AsString) as MessageEntity<T>;
+            var converted = JsonConvert.DeserializeObject<MessageEntity<T>>(msg.AsString);
+            return converted;
+        }
+
+        public static MessageEntity<T> FromJson(string json)
+        {
+            var converted = JsonConvert.DeserializeObject<MessageEntity<T>>(json);
             return converted;
         }
 
