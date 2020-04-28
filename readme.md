@@ -5,15 +5,120 @@
 
 <div id="description">
 
-A lightweight adapter for Azure Service Bus (Queues and Topics), that abstracts consuming applications from the Service Bus technology stack by 
-implementing common messaging interfaces.
+Azure specific implementation of queue storage interface.  Uses the _IReactiveMessenger_ or _IMessenger_ interface from _Cloud.Core_.
 
 </div>
 
-## Design
+# **Usage**
+
+## **Initialisation and Authentication Usage**
+
+There are three ways you can instantiate the Queue Storage Client.  Each way dictates the security mechanism the client uses to connect.  The three mechanisms are:
+
+1. Connection String
+2. Service Principle
+3. Managed Service Identity
+
+Below are examples of instantiating each type.
+
+#### 1. Connection String
+Create an instance of the Queue Storage client using a connection string as follows:
+
+```csharp
+var connConfig = new ConnectionConfig
+    {
+        ConnectionString = "<connectionstring>",
+        ReceiverSetup = new ReceiverSetup { ... }, 
+        SenderSetup = new SenderSetup { ... }
+    };
+
+// Queue storage client.
+var queuestorage = new QueueStorage(connConfig);		
+```
+Note: Instance name not required to be specified anywhere in configuration here as it is taken from the connection string itself.
+
+#### 2. Service Principle
+Create an instance of the Queue Storage client with Service Principle authentication as follows:
+
+```csharp
+var spConfig = new ServicePrincipleConfig
+    {
+        AppId = "<appid>",
+        AppSecret = "<appsecret>",
+        TenantId = "<tenantid>",
+        InstanceName = "<queueinstancename>",
+        SubscriptionId = "<subscriptionId>",
+        ReceiverSetup = new ReceiverSetup { ... }, 
+        SenderSetup = new SenderSetup { ... }
+    };
+
+// Queue storage client.
+var queuestorage = new QueueStorage(spConfig);	
+```
 
 
-## Usage
+#### 3. Management Service Idenity (MSI) 
+This authentication also works for Managed User Identity.  Create an instance of the Queue Storage client with MSI authentication as follows:
+
+```csharp
+var msiConfig = new MsiConfig
+    {
+        TenantId = "<tenantid>",
+        InstanceName = "<queueinstancename>",
+        SubscriptionId = "<subscriptionId>",
+        ReceiverSetup = new ReceiverSetup { ... }, 
+        SenderSetup = new SenderSetup { ... }
+    };
+
+// Queue storage client.
+var queuestorage = new QueueStorage(msiConfig);	
+```
+
+All that's required is the instance name, tenantId and subscriptionId to connect to.  Authentication runs under the context the application is running.
+
+## Dependency Injection
+
+Inserting into dependency container:
+
+```csharp
+// Add multiple instances of state storage.
+services.AddStorageQueueSingletonNamed<IReactiveMessenger>("QM1", "queueStorageInstanceName", "tenantId", "subscriptionId",
+        ReceiverSetup = new ReceiverSetup { ... }, 
+        SenderSetup = new SenderSetup { ... }); 
+
+// add to factory using a key
+services.AddStorageQueueSingletonNamed<IReactiveMessenger>("QM2", "queueStorageInstanceName2", "tenantId", "subscriptionId",
+        ReceiverSetup = new ReceiverSetup { ... }, 
+        SenderSetup = new SenderSetup { ... }); 
+
+// add to factory using a key
+serviceCollection.AddQueueStorageSingleton<IMessenger>("tableStorageInstance3", "tenantId", "subscriptionId",
+        ReceiverSetup = new ReceiverSetup { ... }, 
+        SenderSetup = new SenderSetup { ... });    // add to factory using instance name
+
+// Sample consuming class.
+services.AddTransient<MyClass>();
+```
+
+Using the dependencies:
+
+```csharp
+public class MyClass {
+
+	private readonly IReactiveMessenger _messageInstance1;
+	private readonly IReactiveMessenger _messageInstance2;
+	private readonly IMessenger _messageInstance3;
+
+	public MyClass(NamedInstanceFactory<IReactiveMessenger> messengerFactor, IMessenger singleMessengerInstance) 
+	{	
+		_messageInstance1 = messengerFactor["QM1"];
+		_messageInstance2 = messengerFactor["QM2"];
+		_messageInstance3 = singleMessengerInstance;
+	}
+	
+	...
+}
+```
 
 
 
