@@ -2,11 +2,12 @@
 {
     using System;
     using Models;
+    using Validation;
 
     /// <summary>
     /// Configuration Base class, used with each of the individual config classes.
     /// </summary>
-    public abstract class ConfigBase
+    public abstract class ConfigBase : AttributeValidator
     {
         /// <summary>
         /// Gets or sets the receiver configuration.
@@ -23,13 +24,15 @@
         /// <summary>
         /// Validates this instance.
         /// </summary>
-        public virtual void Validate()
+        public override ValidateResult Validate(IServiceProvider serviceProvider = null)
         {
             // Validate receiver config if set.
-            Receiver?.Validate();
+            Receiver?.ThrowIfInvalid();
 
             // Validate the sender config if its been set.
-            Sender?.Validate();
+            Sender?.ThrowIfInvalid();
+
+            return base.Validate(serviceProvider);
         }
 
         /// <summary>

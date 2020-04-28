@@ -2,19 +2,19 @@
 using Microsoft.Azure.Storage.Queue;
 using Newtonsoft.Json;
 
-namespace Cloud.Core.Messaging.AzureStorageQueue
+namespace Cloud.Core.Messaging.AzureStorageQueue.Models
 {
-    internal class MessageWrapper<T> : IMessageEntity<T>
+    internal class MessageEntity<T> : IMessageEntity<T>
             where T : class
     {
-        public MessageWrapper() { }
+        public MessageEntity() { }
 
-        public MessageWrapper(T body)
+        public MessageEntity(T body)
         {
             Body = body;
         }
 
-        public MessageWrapper(T body, KeyValuePair<string, object>[] props)
+        public MessageEntity(T body, KeyValuePair<string, object>[] props)
         {
             Body = body;
             Properties = props?.AsDictionary();
@@ -33,9 +33,9 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
             return Properties.ToObject<O>();
         }
 
-        public static MessageWrapper<T> FromJson(CloudQueueMessage msg)
+        public static MessageEntity<T> FromJson(CloudQueueMessage msg)
         {
-            var converted = JsonConvert.DeserializeObject(msg.AsString) as MessageWrapper<T>;
+            var converted = JsonConvert.DeserializeObject(msg.AsString) as MessageEntity<T>;
             return converted;
         }
 

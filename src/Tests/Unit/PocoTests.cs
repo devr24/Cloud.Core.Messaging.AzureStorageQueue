@@ -13,10 +13,10 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
         [Fact]
         public void POCO_Tests()
         {
-            _ = new MessageWrapper<string>("");
-            _ = new MessageWrapper<string>("", null);
+            _ = new MessageEntity<string>("");
+            _ = new MessageEntity<string>("", null);
 
-            var wrapper = new MessageWrapper<string>()
+            var wrapper = new MessageEntity<string>()
             {
                 Body = null,
                 OriginalMessage = null,
@@ -30,7 +30,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
             var x = wrapper.AsJson();
             try
             {
-                var y = MessageWrapper<string>.FromJson(new CloudQueueMessage("Yeo"));
+                var y = MessageEntity<string>.FromJson(new CloudQueueMessage("Yeo"));
             }
             catch (Exception)
             {

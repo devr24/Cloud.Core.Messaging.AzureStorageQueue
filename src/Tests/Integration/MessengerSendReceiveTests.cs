@@ -164,7 +164,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
         public void QueueMessenger_ReceiveOneUpdateReceiverUninitReceiver()
         {
             // Arrange - Setup test data.
-            var testUpdateReciever = new QueueMessenger(new ConnectionConfig
+            var testUpdateReciever = new StorageQueueMessenger(new ConnectionConfig
             {
                 ConnectionString = _config.GetValue<string>("ConnectionString")
             });
@@ -198,7 +198,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
         public void QueueMessenger_ReceiveOneShouldNotErrorWhenNoMessageIsAvailable()
         {
             // Arrange - Setup test data.
-            _ = new QueueMessenger(new ConnectionConfig
+            _ = new StorageQueueMessenger(new ConnectionConfig
             {
                 ConnectionString = _config.GetValue<string>("ConnectionString")
             });
@@ -452,9 +452,9 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
             Assert.Contains("testqueue", accessUrl);
         }
 
-        private QueueMessenger GetMessengerClient(string queueName = "testEntity")
+        private StorageQueueMessenger GetMessengerClient(string queueName = "testEntity")
         {
-            return new QueueMessenger(new ConnectionConfig
+            return new StorageQueueMessenger(new ConnectionConfig
             {
                 ConnectionString = _config.GetValue<string>("ConnectionString"),
                 Receiver = new ReceiverSetup

@@ -25,7 +25,7 @@
     /// <seealso cref="IMessenger" />
     /// <seealso cref="IReactiveMessenger" />
     /// <seealso cref="StorageQueueBase" />
-    public class QueueMessenger : StorageQueueBase, IMessenger, IReactiveMessenger
+    public class StorageQueueMessenger : StorageQueueBase, IMessenger, IReactiveMessenger
     {
         #region Construction
 
@@ -59,30 +59,24 @@
         /// </summary>
         /// <param name="config">The Msi ServiceBus configuration.</param>
         /// <param name="logger">The logger.</param>
-        public QueueMessenger([NotNull]MsiConfig config, ILogger logger = null)
-            : base(config, logger)
-        {
-        }
+        public StorageQueueMessenger([NotNull]MsiConfig config, ILogger logger = null)
+            : base(config, logger) { }
 
         /// <summary>
         /// Initializes a new instance of ServiceBusMessenger with Service Principle authentication.
         /// </summary>
         /// <param name="config">The Service Principle configuration.</param>
         /// <param name="logger">The logger.</param>
-        public QueueMessenger([NotNull]ServicePrincipleConfig config, ILogger logger = null)
-            : base(config, logger)
-        {
-        }
+        public StorageQueueMessenger([NotNull]ServicePrincipleConfig config, ILogger logger = null)
+            : base(config, logger) { }
 
         /// <summary>
         /// Initializes a new instance of the ServiceBusMessenger using a connection string.
         /// </summary>
         /// <param name="config">The connection string configuration.</param>
         /// <param name="logger">The logger.</param>
-        public QueueMessenger([NotNull]ConnectionConfig config, ILogger logger = null)
-            : base(config, logger)
-        {
-        }
+        public StorageQueueMessenger([NotNull]ConnectionConfig config, ILogger logger = null)
+            : base(config, logger) { }
 
         #endregion
 
@@ -108,7 +102,7 @@
         /// <returns>Task.</returns>
         public async Task Send<T>(T message, KeyValuePair<string, object>[] properties) where T : class
         {
-            var obj = new MessageWrapper<T>(message, properties);
+            var obj = new MessageEntity<T>(message, properties);
             var outgoing = new CloudQueueMessage(obj.AsJson());
 
             const long maxAllowedSizeBytes = 64 * 1024;
@@ -146,7 +140,9 @@
         {
             Func<T, KeyValuePair<string, object>[]> func = (a) => properties;
             if (properties == null)
+            {
                 func = null;
+            }
 
             await SendBatch(messages, func, batchSize);
         }
@@ -182,6 +178,11 @@
             return message?.Body;
         }
 
+        /// <summary>
+        /// Gets a single message with IMessageEntity wrapper.
+        /// </summary>
+        /// <typeparam name="T">Type of message entity body.</typeparam>
+        /// <returns>IMessageEntity wrapper with body and properties.</returns>
         public IMessageEntity<T> ReceiveOneEntity<T>() where T : class
         {
             Monitor.Enter(ReceiveGate);
@@ -195,11 +196,11 @@
             }
         }
 
-        private List<MessageWrapper<T>> GetMessages<T>(int batchSize = 10)
+        private List<MessageEntity<T>> GetMessages<T>(int batchSize = 10)
             where T : class
         {
             var messages = ReceiverQueue.GetMessagesAsync(batchSize).GetAwaiter().GetResult().ToList();
-            var msgItems = new List<MessageWrapper<T>>();
+            var msgItems = new List<MessageEntity<T>>();
 
             if (messages.Count > 0)
             {
@@ -218,15 +219,15 @@
             return msgItems;
         }
 
-        private MessageWrapper<T> GetMessageBody<T>(CloudQueueMessage message)
+        private MessageEntity<T> GetMessageBody<T>(CloudQueueMessage message)
             where T : class
         {
-            var result = JsonConvert.DeserializeObject<MessageWrapper<T>>(message.AsString);
+            var result = JsonConvert.DeserializeObject<MessageEntity<T>>(message.AsString);
 
             if (result.IsEmpty())
             {
                 var messageObject = JsonConvert.DeserializeObject<T>(message.AsString);
-                result = new MessageWrapper<T>(messageObject);
+                result = new MessageEntity<T>(messageObject);
             }
 
             result.OriginalMessage = message;
@@ -356,7 +357,7 @@
             where T : class
             where O : class, new()
         {
-            var results = (MessageWrapper<T>)Messages[msg];
+            var results = (MessageEntity<T>)Messages[msg];
             return results.GetPropertiesTyped<O>();
         }
 
@@ -368,7 +369,7 @@
         /// <returns>IDictionary&lt;System.String, System.Object&gt;.</returns>
         public IDictionary<string, object> ReadProperties<T>(T msg) where T : class
         {
-            var results = (MessageWrapper<T>)Messages[msg];
+            var results = (MessageEntity<T>)Messages[msg];
             return results.Properties;
         }
 
@@ -383,12 +384,18 @@
         /// <inheritdoc />
         public async Task Complete<T>(T message) where T : class
         {
-            var sourceMessage = (MessageWrapper<T>)Messages[message];
+            var sourceMessage = (MessageEntity<T>)Messages[message];
 
             await ReceiverQueue.DeleteMessageAsync(sourceMessage.OriginalMessage);
             Messages.TryRemove(message, out _);
         }
 
+        /// <summary>
+        /// Completes all the passed in messages.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="messages">The messages to complete.</param>
+        /// <returns>Task.</returns>
         public Task CompleteAll<T>(IEnumerable<T> messages) where T : class
         {
             foreach (var msg in messages)
@@ -408,7 +415,7 @@
         /// <inheritdoc />
         public async Task Abandon<T>(T message) where T : class
         {
-            var msg = (MessageWrapper<T>)Messages[message];
+            var msg = (MessageEntity<T>)Messages[message];
             await ReceiverQueue.UpdateMessageAsync(msg.OriginalMessage, TimeSpan.FromSeconds(10),
                 MessageUpdateFields.Content | MessageUpdateFields.Visibility);
 
@@ -443,7 +450,6 @@
         public string GetSignedAccessUrl(ISignedAccessConfig signedAccessConfig)
         {
             var queuePolicyPermissions = GetAzureAccessQueuePolicyPermissions(signedAccessConfig.AccessPermissions);
-
             var accessPolicy = new SharedAccessQueuePolicy
             {
                 Permissions = queuePolicyPermissions,
@@ -451,7 +457,6 @@
             };
 
             var queueSignature = ReceiverQueue.GetSharedAccessSignature(accessPolicy);
-
             var queueAccessUrl = ReceiverQueue.Uri + queueSignature;
 
             return queueAccessUrl;
@@ -533,7 +538,6 @@
             var blobPolicyPermissions = azurePermissions.Aggregate((x, y) => x | y);
             return blobPolicyPermissions;
         }
-
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

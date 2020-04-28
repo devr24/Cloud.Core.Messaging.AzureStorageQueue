@@ -10,7 +10,7 @@
     /// <summary>
     /// Class ServiceCollectionExtensions.
     /// </summary>
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Add Storage Queue singleton of type T, using named properties (as opposed to passing MsiConfig/ServicePrincipleConfig etc).
@@ -46,7 +46,7 @@
         public static IServiceCollection AddStorageQueueSingletonNamed<T>(this IServiceCollection services, string key, string instanceName, string tenantId, string subscriptionId, ReceiverSetup receiver = null, SenderSetup sender = null)
             where T : IMessageOperations
         {
-            var storageQueueInstance = new QueueMessenger(new MsiConfig
+            var storageQueueInstance = new StorageQueueMessenger(new MsiConfig
             {
                 InstanceName = instanceName,
                 TenantId = tenantId,
@@ -56,7 +56,9 @@
             });
 
             if (!key.IsNullOrEmpty())
+            {
                 storageQueueInstance.Name = key;
+            }
 
             services.AddSingleton(typeof(T), storageQueueInstance);
             AddFactoryIfNotAdded(services);
@@ -74,7 +76,7 @@
         public static IServiceCollection AddStorageQueueSingleton<T>(this IServiceCollection services, MsiConfig config)
             where T : IMessageOperations
         {
-            var storageQueueInstance = new QueueMessenger(config);
+            var storageQueueInstance = new StorageQueueMessenger(config);
             services.AddSingleton(typeof(T), storageQueueInstance);
             AddFactoryIfNotAdded(services);
             return services;
@@ -90,7 +92,7 @@
         public static IServiceCollection AddStorageQueueSingleton<T>(this IServiceCollection services, ConnectionConfig config)
             where T : IMessageOperations
         {
-            var storageQueueInstance = new QueueMessenger(config);
+            var storageQueueInstance = new StorageQueueMessenger(config);
             services.AddSingleton(typeof(T), storageQueueInstance);
             AddFactoryIfNotAdded(services);
             return services;
@@ -106,7 +108,7 @@
         public static IServiceCollection AddStorageQueueSingleton<T>(this IServiceCollection services, ServicePrincipleConfig config)
             where T : IMessageOperations
         {
-            var storageQueueInstance = new QueueMessenger(config);
+            var storageQueueInstance = new StorageQueueMessenger(config);
             services.AddSingleton(typeof(T), storageQueueInstance);
             AddFactoryIfNotAdded(services);
             return services;

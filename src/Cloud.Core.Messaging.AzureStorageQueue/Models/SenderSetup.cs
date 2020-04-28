@@ -1,12 +1,13 @@
 ﻿namespace Cloud.Core.Messaging.AzureStorageQueue.Models
 {
-    using System;
     using System.Text;
-    
+    using System.ComponentModel.DataAnnotations;
+    using Validation;
+
     /// <summary>
     /// Sender setup information, used when creating a connection to send messages to an entity.
     /// </summary>
-    public class SenderSetup
+    public class SenderSetup: AttributeValidator
     {
         private string _entityName;
 
@@ -14,6 +15,7 @@
         /// Gets or sets the name of the entity to send to.
         /// </summary>
         /// <value>The name of the entity.</value>
+        [Required]
         public string EntityName
         {
             get => _entityName;
@@ -36,16 +38,6 @@
         /// </summary>
         /// <value>The maximum entity size bytes.</value>
         public long MaxMessageSizeBytes => 64000;
-
-        /// <summary>
-        /// Validates this instance for basic setup information.
-        /// </summary>
-        /// <exception cref="System.ArgumentException">EntityName (topic or queue name) must be set when setting up sender</exception>
-        public void Validate()
-        {
-            if (EntityName.IsNullOrEmpty())
-                throw new ArgumentException("EntityName must be set when setting up sender");
-        }
 
         /// <summary>
         /// Returns a <see cref="string" /> that represents this instance.

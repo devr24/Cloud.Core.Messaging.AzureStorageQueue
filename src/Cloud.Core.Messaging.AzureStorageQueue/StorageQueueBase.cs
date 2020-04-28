@@ -25,54 +25,20 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
     [ExcludeFromCodeCoverage]
     public abstract class StorageQueueBase : INamedInstance
     {
-        /// <summary>
-        /// Holds a list of cached connection strings.
-        /// </summary>
         internal static readonly ConcurrentDictionary<string, string> ConnectionStrings = new ConcurrentDictionary<string, string>();
-        /// <summary>
-        /// The logger
-        /// </summary>
         internal readonly ILogger Logger;
-        /// <summary>
-        /// The msi configuration
-        /// </summary>
         internal readonly ConfigBase Config;
-        /// <summary>
-        /// The connection string
-        /// </summary>
         internal string ConnectionString;
 
         private CloudQueue _receiverQueue;
         private CloudQueue _senderQueue;
-        /// <summary>
-        /// Managed Identity/User configuration (if used).
-        /// </summary>
         private readonly MsiConfig _msiConfig;
-        /// <summary>
-        /// Service principle configuration (if used).
-        /// </summary>
         private readonly ServicePrincipleConfig _spConfig;
-        /// <summary>
-        /// The cloud client
-        /// </summary>
         private CloudQueueClient _cloudClient;
-        /// <summary>
-        /// The expiry time
-        /// </summary>
         private DateTimeOffset? _expiryTime;
-        /// <summary>
-        /// The instance name
-        /// </summary>
         private readonly string _instanceName;
-        /// <summary>
-        /// The subscription identifier
-        /// </summary>
         private readonly string _subscriptionId;
 
-        /// <summary>
-        /// Gets the cloud table client.
-        /// </summary>
-        /// <value>The cloud table client.</value>
         internal CloudQueueClient CloudQueueClient
         {
             get
@@ -129,7 +95,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
         protected StorageQueueBase(ConnectionConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             ConnectionString = config.ConnectionString;
@@ -145,14 +111,15 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
         protected StorageQueueBase(MsiConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             _msiConfig = config;
             Name = config.InstanceName;
+            Config = config;
+
             _instanceName = config.InstanceName;
             _subscriptionId = config.SubscriptionId;
-            Config = config;
         }
 
         /// <summary>
@@ -163,14 +130,15 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
         protected StorageQueueBase(ServicePrincipleConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             _spConfig = config;
             Name = config.InstanceName;
+            Config = config;
+
             _instanceName = config.InstanceName;
             _subscriptionId = config.SubscriptionId;
-            Config = config;
         }
 
         /// <summary>
@@ -288,7 +256,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
                 // Build the connection string.
                 var connectionString = $"DefaultEndpointsProtocol=https;AccountName={_instanceName};AccountKey={key};EndpointSuffix=core.windows.net";
 
-                // Cache the connection string off so we don't have to reauthenticate.
+                // Cache the connection string off so we don't have to re-authenticate.
                 if (!ConnectionStrings.ContainsKey(_instanceName))
                 {
                     ConnectionStrings.TryAdd(_instanceName, connectionString);

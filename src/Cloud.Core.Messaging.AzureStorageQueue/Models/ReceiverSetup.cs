@@ -1,13 +1,14 @@
 ﻿namespace Cloud.Core.Messaging.AzureStorageQueue.Models
 {
-    using System;
     using System.Globalization;
     using System.Text;
+    using System.ComponentModel.DataAnnotations;
+    using Validation;
 
     /// <summary>
     /// Receiver setup information, used when creating a connection to listen to messages from an entity.
     /// </summary>
-    public class ReceiverSetup
+    public class ReceiverSetup : AttributeValidator
     {
         private string _entityName;
 
@@ -15,6 +16,7 @@
         /// Gets or sets the name of the entity to receive from.
         /// </summary>
         /// <value>The name of the entity to receive from.</value>
+        [Required]
         public string EntityName
         {
             get => _entityName;
@@ -34,24 +36,10 @@
         public bool CreateEntityIfNotExists { get; set; }
 
         /// <summary>
-        /// Gets or sets the occurance of "polling" in seconds (how often the message receiver queries Storage Queue for new messages).
+        /// Gets or sets the occurence of "polling" in seconds (how often the message receiver queries Storage Queue for new messages).
         /// </summary>
         /// <value>The poll frequency in seconds.</value>
         public double PollFrequencyInSeconds { get; set; } = 0.05;
-
-        /// <summary>
-        /// Validates this instance for basic setup information.
-        /// </summary>
-        /// <exception cref="System.ArgumentException">
-        /// EntityName (topic or queue name) must be set when setting up receiver
-        /// or
-        /// Both EntityName (topic name) and EntitySubscriptionName (subscription name) must be set when setting up receiver
-        /// </exception>
-        public void Validate()
-        {
-            if (EntityName.IsNullOrEmpty())
-                throw new ArgumentException("EntityName must be set when setting up receiver");
-        }
 
         /// <summary>
         /// Returns a <see cref="string" /> that represents this instance.
