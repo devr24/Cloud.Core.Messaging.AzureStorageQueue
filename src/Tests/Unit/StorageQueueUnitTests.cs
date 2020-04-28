@@ -29,6 +29,11 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
             Assert.Null(wrapper.Properties);
         }
 
+        private class TypedPropsSample
+        {
+            public string Key { get; set; }
+        }
+
         /// <summary>Verify message entity can be converted to and from json.</summary>
         [Fact]
         public void Test_MessageEntity_ToFromJson()
@@ -36,19 +41,22 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
             // Arrage 
             var wrapper = new MessageEntity<string>("body", new KeyValuePair<string, object>[1]
             {
-                new KeyValuePair<string, object>("key", "value")
+                new KeyValuePair<string, object>("Key", "value")
             });
 
             // Act
             var jsonVersion = wrapper.AsJson();
             var converted = JsonConvert.DeserializeObject<MessageEntity<string>>(jsonVersion);
+            var typedProps = wrapper.GetPropertiesTyped<TypedPropsSample>();
 
             // Assert
             converted.Body.Should().Be("body");
             converted.Properties.Should().BeEquivalentTo(new KeyValuePair<string, object>[1]
             {
-                new KeyValuePair<string, object>("key", "value")
+                new KeyValuePair<string, object>("Key", "value")
             });
+            typedProps.Should().NotBeNull();
+            typedProps.Key.Should().Be("value");
         }
 
         /// <summary>Verify message entity can be converted from json.</summary>
