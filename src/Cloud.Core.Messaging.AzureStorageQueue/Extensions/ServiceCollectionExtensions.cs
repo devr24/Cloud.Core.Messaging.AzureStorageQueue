@@ -8,7 +8,7 @@
     using Cloud.Core.Messaging.AzureStorageQueue.Models;
 
     /// <summary>
-    /// Class ServiceCollectionExtensions.
+    /// Class Service Collection extensions.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
