@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Linq;
     using Cloud.Core;
     using Cloud.Core.Messaging.AzureStorageQueue;
     using Cloud.Core.Messaging.AzureStorageQueue.Config;
@@ -61,7 +60,8 @@
             }
 
             services.AddSingleton(typeof(T), storageQueueInstance);
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IReactiveMessenger>();
+            services.AddFactoryIfNotAdded<IMessenger>();
             return services;
         }
 
@@ -78,7 +78,8 @@
         {
             var storageQueueInstance = new StorageQueueMessenger(config);
             services.AddSingleton(typeof(T), storageQueueInstance);
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IReactiveMessenger>();
+            services.AddFactoryIfNotAdded<IMessenger>();
             return services;
         }
 
@@ -94,7 +95,8 @@
         {
             var storageQueueInstance = new StorageQueueMessenger(config);
             services.AddSingleton(typeof(T), storageQueueInstance);
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IReactiveMessenger>();
+            services.AddFactoryIfNotAdded<IMessenger>();
             return services;
         }
 
@@ -110,38 +112,9 @@
         {
             var storageQueueInstance = new StorageQueueMessenger(config);
             services.AddSingleton(typeof(T), storageQueueInstance);
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IReactiveMessenger>();
+            services.AddFactoryIfNotAdded<IMessenger>();
             return services;
-        }
-
-        /// <summary>
-        /// Add the generic service factory from Cloud.Core for the IReactiveMessenger and IMessenger type.  This allows multiple named instances of the same instance.
-        /// </summary>
-        /// <param name="services">Service collection to extend.</param>
-        private static void AddFactoryIfNotAdded(IServiceCollection services)
-        {
-            if (services.All(x => x.ServiceType != typeof(NamedInstanceFactory<IMessenger>)))
-            {
-                // Service Factory doesn't exist, so we add it to ensure it's always available.
-                services.AddSingleton<NamedInstanceFactory<IMessenger>>();
-            }
-
-            if (services.All(x => x.ServiceType != typeof(NamedInstanceFactory<IReactiveMessenger>)))
-            {
-                // Service Factory doesn't exist, so we add it to ensure it's always available.
-                services.AddSingleton<NamedInstanceFactory<IReactiveMessenger>>();
-            }
-        }
-
-        /// <summary>
-        /// Search through the service collection for a particular object type.
-        /// </summary>
-        /// <param name="services">IServiceCollection to check.</param>
-        /// <param name="objectTypeToFind">Type of object to find.</param>
-        /// <returns>Boolean true if service exists and false if not.</returns>
-        public static bool ContainsService(this IServiceCollection services, Type objectTypeToFind)
-        {
-            return services.Any(x => x.ServiceType == objectTypeToFind);
         }
     }
 }
