@@ -10,12 +10,13 @@
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
-    using Comparer;
+    using Cloud.Core.Comparer;
     using Config;
     using Models;
     using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
+    using Cloud.Core;
 
     /// <summary>
     /// Azure Storage Queue specific implementation of IMessenger and IReactiveMessenger.
@@ -569,6 +570,49 @@
             }
 
             Disposed = true;
+        }
+
+        /// <summary>
+        /// Read a batch of typed messages in a synchronous manner.
+        /// </summary>
+        /// <typeparam name="T">Type of object of the entity.</typeparam>
+        /// <param name="batchSize">Size of the batch.</param>
+        /// <returns>IMessageItem&lt;T&gt;.</returns>
+        public List<T> ReceiveBatch<T>(int batchSize) where T : class
+        {
+            Monitor.Enter(ReceiveGate);
+            try
+            {
+                return GetMessages<T>(batchSize).Select(m => m.Body).ToList();
+            }
+            finally
+            {
+                Monitor.Exit(ReceiveGate);
+            }
+        }
+
+        /// <summary>
+        /// Receives a batch of message in a synchronous manner of type IMessageEntity types.
+        /// </summary>
+        /// <typeparam name="T">Generic type.</typeparam>
+        /// <param name="batchSize">Size of the batch.</param>
+        /// <returns>IMessageEntity&lt;T&gt;.</returns>
+        public List<IMessageEntity<T>> ReceiveBatchEntity<T>(int batchSize) where T : class
+        {
+            Monitor.Enter(ReceiveGate);
+            try
+            {
+                var msgs = GetMessages<T>(batchSize).Select(m => new MessageEntity<T> { 
+                    Body = m.Body, 
+                    Properties = m.Properties, 
+                    OriginalMessage = m.OriginalMessage 
+                } as IMessageEntity<T>).ToList();
+                return msgs;
+            }
+            finally
+            {
+                Monitor.Exit(ReceiveGate);
+            }
         }
     }
 }
