@@ -7,7 +7,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
     /// <summary>
     /// Methods to manage the entity level details of storage queues 
     /// </summary>
-    /// <seealso cref="Cloud.Core.IMessageEntityManager" />
+    /// <seealso cref="IMessageEntityManager" />
     public class StorageQueueEntityManager : IMessageEntityManager
     {
         private readonly CloudQueue _receiverQueue;
@@ -93,7 +93,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
         /// Creates a Storage Queue with the given config
         /// </summary>
         /// <param name="config">The configuration.</param>
-        public async Task CreateEntity(IEntityConfig config)
+        public async Task CreateEntity(IMessageEntityConfig config)
         {
             await _queueClient.GetQueueReference(config.EntityName).CreateIfNotExistsAsync();
 

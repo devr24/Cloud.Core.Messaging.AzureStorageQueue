@@ -13,13 +13,13 @@
         /// Gets or sets the receiver configuration.
         /// </summary>
         /// <value>The receiver config.</value>
-        public ReceiverSetup Receiver { get; set; }
+        public ReceiverConfig Receiver { get; set; }
 
         /// <summary>
         /// Gets or sets the sender configuration.
         /// </summary>
         /// <value>The sender config.</value>
-        public SenderSetup Sender { get; set; }
+        public SenderConfig Sender { get; set; }
 
         /// <summary>
         /// Validates this instance.
@@ -42,8 +42,8 @@
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{Environment.NewLine}ReceiverSetup: {(Receiver == null ? "[NOT SET]" : Receiver.ToString())}"+
-                $"{Environment.NewLine}SenderSetup: {(Sender == null ? "[NOT SET]" : Sender.ToString())}";
+            return $"{Environment.NewLine}ReceiverConfig: {(Receiver == null ? "[NOT SET]" : Receiver.ToString())}"+
+                $"{Environment.NewLine}SenderConfig: {(Sender == null ? "[NOT SET]" : Sender.ToString())}";
         }
     }
 }

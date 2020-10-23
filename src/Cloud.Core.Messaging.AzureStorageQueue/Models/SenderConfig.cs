@@ -7,7 +7,7 @@
     /// <summary>
     /// Sender setup information, used when creating a connection to send messages to an entity.
     /// </summary>
-    public class SenderSetup: AttributeValidator
+    public class SenderConfig: AttributeValidator
     {
         private string _entityName;
 

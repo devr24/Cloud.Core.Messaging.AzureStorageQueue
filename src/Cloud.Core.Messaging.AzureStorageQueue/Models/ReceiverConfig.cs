@@ -8,7 +8,7 @@
     /// <summary>
     /// Receiver setup information, used when creating a connection to listen to messages from an entity.
     /// </summary>
-    public class ReceiverSetup : AttributeValidator
+    public class ReceiverConfig : AttributeValidator
     {
         private string _entityName;
 

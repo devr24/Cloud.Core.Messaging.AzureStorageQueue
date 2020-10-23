@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Integration
 {
-    using Cloud.Core.Messaging.AzureStorageQueue.Models;
-    using Xunit;
-
     public class SignedAccessUrlTestData : TheoryData<Dictionary<string, string>, ISignedAccessConfig>
     {
         public SignedAccessUrlTestData()

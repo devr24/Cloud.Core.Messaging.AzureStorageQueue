@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cloud.Core.Exceptions;
 using Cloud.Core.Messaging.AzureStorageQueue.Config;
 using Cloud.Core.Messaging.AzureStorageQueue.Models;
@@ -162,7 +161,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
         public void Test_ReceiverSetup_Validate()
         {
             // Arrange
-            var receiverSetup = new ReceiverSetup()
+            var receiverSetup = new ReceiverConfig()
             {
                 CreateEntityIfNotExists = false,
                 EntityName = "",
@@ -184,7 +183,7 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
         public void Test_SenderSetup_Validate()
         {
             // Arrange
-            var senderSetup = new SenderSetup()
+            var senderSetup = new SenderConfig()
             {
                 CreateEntityIfNotExists = false,
                 EntityName = ""

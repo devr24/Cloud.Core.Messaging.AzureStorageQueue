@@ -10,13 +10,13 @@
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
-    using Cloud.Core.Comparer;
+    using Comparer;
     using Config;
     using Models;
     using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using Cloud.Core;
+    using Core;
 
     /// <summary>
     /// Azure Storage Queue specific implementation of IMessenger and IReactiveMessenger.
@@ -38,6 +38,16 @@
 
         internal readonly ConcurrentDictionary<object, object> Messages = new ConcurrentDictionary<object, object>(ObjectReferenceEqualityComparer<object>.Default);
         internal readonly ConcurrentDictionary<Type, Timer> LockTimers = new ConcurrentDictionary<Type, Timer>(ObjectReferenceEqualityComparer<Type>.Default);
+
+        Task IMessenger.UpdateReceiver(string entityName, string entitySubscriptionName, KeyValuePair<string, string>? entityFilter)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IReactiveMessenger.UpdateReceiver(string entityName, string entitySubscriptionName, KeyValuePair<string, string>? entityFilter)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Property representing IManager interface method.
@@ -189,7 +199,7 @@
             Monitor.Enter(ReceiveGate);
             try
             {
-                return GetMessages<T>(1).FirstOrDefault();
+                return GetMessages<T>(1).GetAwaiter().GetResult().FirstOrDefault();
             }
             finally
             {
@@ -197,10 +207,10 @@
             }
         }
 
-        private List<MessageEntity<T>> GetMessages<T>(int batchSize = 10)
+        private async Task<List<MessageEntity<T>>> GetMessages<T>(int batchSize = 10)
             where T : class
         {
-            var messages = ReceiverQueue.GetMessagesAsync(batchSize).GetAwaiter().GetResult().ToList();
+            var messages = (await ReceiverQueue.GetMessagesAsync(batchSize)).ToList();
             var msgItems = new List<MessageEntity<T>>();
 
             if (messages.Count > 0)
@@ -255,7 +265,7 @@
 
                     try
                     {
-                        var msgItems = GetMessages<T>(batchSize);
+                        var msgItems = GetMessages<T>(batchSize).GetAwaiter().GetResult();
 
                         foreach (var msg in msgItems)
                         {
@@ -323,7 +333,7 @@
 
                         try
                         {
-                            var msgItems = GetMessages<T>(batchSize);
+                            var msgItems = GetMessages<T>(batchSize).GetAwaiter().GetResult();
 
                             foreach (var msg in msgItems)
                             {
@@ -413,8 +423,23 @@
         /// <typeparam name="T"></typeparam>
         /// <param name="message">The message.</param>
         /// <returns>Task.</returns>
-        /// <inheritdoc />
         public async Task Abandon<T>(T message) where T : class
+        {
+            var msg = (MessageEntity<T>)Messages[message];
+            await ReceiverQueue.UpdateMessageAsync(msg.OriginalMessage, TimeSpan.FromSeconds(10),
+                MessageUpdateFields.Content | MessageUpdateFields.Visibility);
+
+            Messages.TryRemove(message, out _);
+        }
+
+        /// <summary>
+        /// Abandons a message by returning it to the queue.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message">The message we want to abandon.</param>
+        /// <param name="propertiesToModify">The message properties to modify on abandon.</param>
+        /// <returns>The async <see cref="T:System.Threading.Tasks.Task" /> wrapper.</returns>
+        public async Task Abandon<T>(T message, KeyValuePair<string, object>[] propertiesToModify) where T : class
         {
             var msg = (MessageEntity<T>)Messages[message];
             await ReceiverQueue.UpdateMessageAsync(msg.OriginalMessage, TimeSpan.FromSeconds(10),
@@ -467,25 +492,19 @@
         /// Update the receiver to listen to a different storage Queue
         /// </summary>
         /// <param name="entityName">The name of the updated storage queue to listen to.</param>
-        /// <param name="entitySubscriptionName">Not required for Azure Storage Queues.</param>
-        /// <param name="createIfNotExists">Creates the entity if it does not exist. Not needed for Storage Queue right now</param>
-        /// <param name="entityFilter">A filter that will be applied to the entity if created through this method. Not Needed for Storage Queue right now.</param>
-        /// <param name="supportStringBodyType">Read message body as a string. Not Needed for Storage Queue right now.</param>
-        /// <returns></returns>
-        public Task UpdateReceiver(string entityName, string entitySubscriptionName = null, bool createIfNotExists = false, KeyValuePair<string, string>? entityFilter = default, bool supportStringBodyType = false)
+        /// <returns>Task.</returns>
+        public Task UpdateReceiver(string entityName)
         {
             if (Config.Receiver == null)
             {
-                Config.Receiver = new ReceiverSetup()
+                Config.Receiver = new ReceiverConfig
                 {
-                    EntityName = entityName,
-                    CreateEntityIfNotExists = createIfNotExists
+                    EntityName = entityName
                 };
             }
             else
             {
                 Config.Receiver.EntityName = entityName;
-
             }
 
             //To make it get re-configured next time it's requested
@@ -578,12 +597,12 @@
         /// <typeparam name="T">Type of object of the entity.</typeparam>
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns>IMessageItem&lt;T&gt;.</returns>
-        public List<T> ReceiveBatch<T>(int batchSize) where T : class
+        public async Task<List<T>> ReceiveBatch<T>(int batchSize) where T : class
         {
             Monitor.Enter(ReceiveGate);
             try
             {
-                return GetMessages<T>(batchSize).Select(m => m.Body).ToList();
+                return (await GetMessages<T>(batchSize)).Select(m => m.Body).ToList();
             }
             finally
             {
@@ -597,12 +616,12 @@
         /// <typeparam name="T">Generic type.</typeparam>
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns>IMessageEntity&lt;T&gt;.</returns>
-        public List<IMessageEntity<T>> ReceiveBatchEntity<T>(int batchSize) where T : class
+        public async Task<List<IMessageEntity<T>>> ReceiveBatchEntity<T>(int batchSize) where T : class
         {
             Monitor.Enter(ReceiveGate);
             try
             {
-                var msgs = GetMessages<T>(batchSize).Select(m => new MessageEntity<T> { 
+                var msgs = (await GetMessages<T>(batchSize)).Select(m => new MessageEntity<T> { 
                     Body = m.Body, 
                     Properties = m.Properties, 
                     OriginalMessage = m.OriginalMessage 
@@ -613,6 +632,46 @@
             {
                 Monitor.Exit(ReceiveGate);
             }
+        }
+
+        /// <summary>
+        /// [NOT IMPLEMENTED FOR THIS PROVIDER]
+        /// Receives a batch of deferred messages of type IMessageEntity types.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="identities">The list of identities pertaining to the batch</param>
+        /// <returns>IMessageEntity&lt;T&gt;.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<List<IMessageEntity<T>>> ReceiveDeferredBatchEntity<T>(IEnumerable<long> identities) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// [NOT IMPLEMENTED FOR THIS PROVIDER]
+        /// Defers a message in the the queue.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message">The message we want to abandon.</param>
+        /// <param name="propertiesToModify">The message properties to modify on abandon.</param>
+        /// <returns>The async <see cref="T:System.Threading.Tasks.Task" /> wrapper.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task Defer<T>(T message, KeyValuePair<string, object>[] propertiesToModify = null) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// [NOT IMPLEMENTED FOR THIS PROVIDER]
+        /// Receives a batch of deferred messages of type T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="identities">The list of identities pertaining to the batch.</param>
+        /// <returns>IMessageItem&lt;T&gt;.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<List<T>> ReceiveDeferredBatch<T>(IEnumerable<long> identities) where T : class
+        {
+            throw new NotImplementedException();
         }
     }
 }

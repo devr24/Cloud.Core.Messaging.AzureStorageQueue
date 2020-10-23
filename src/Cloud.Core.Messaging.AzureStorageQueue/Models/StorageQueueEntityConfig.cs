@@ -3,8 +3,8 @@
     /// <summary>
     /// Configuration required to create a Storage Queue 
     /// </summary>
-    /// <seealso cref="Cloud.Core.IEntityConfig" />
-    public class StorageQueueEntityConfig : IEntityConfig
+    /// <seealso cref="IMessageEntityConfig" />
+    public class StorageQueueEntityConfig : IMessageEntityConfig
     {
         private string _entityName;
 

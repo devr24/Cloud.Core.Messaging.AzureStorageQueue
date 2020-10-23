@@ -10,8 +10,6 @@ using Cloud.Core.Testing;
 using Cloud.Core.Testing.Lorem;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Cloud.Core.Messaging.AzureStorageQueue
@@ -457,12 +455,12 @@ namespace Cloud.Core.Messaging.AzureStorageQueue
             return new StorageQueueMessenger(new ConnectionConfig
             {
                 ConnectionString = _config.GetValue<string>("ConnectionString"),
-                Receiver = new ReceiverSetup
+                Receiver = new ReceiverConfig
                 {
                     CreateEntityIfNotExists = true,
                     EntityName = queueName
                 },
-                Sender = new SenderSetup
+                Sender = new SenderConfig
                 {
                     CreateEntityIfNotExists = true,
                     EntityName = queueName

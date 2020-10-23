@@ -5,8 +5,9 @@
 
 <div id="description">
 
-Azure specific implementation of queue storage interface.  Uses the _IReactiveMessenger_ or _IMessenger_ interface from _Cloud.Core_.
+Azure storage queue specific implementation of queue storage interface.  Uses the _IReactiveMessenger_ or _IMessenger_ interface from _Cloud.Core_.
 
+**[Read full Api documentation](https://cloud1core.blob.core.windows.net/docs/Cloud.Core.Messaging.AzureStorageQueue/api/index.html)**
 </div>
 
 # **Usage**

@@ -23,7 +23,7 @@
         /// <param name="receiver">Receiver configuration (if any).</param>
         /// <param name="sender">Sender configuration (if any).</param>
         /// <returns>Modified service collection with the IReactiveMessenger, IMessenger and NamedInstanceFactory{T} configured.</returns>
-        public static IServiceCollection AddStorageQueueSingleton<T>(this IServiceCollection services, string instanceName, string tenantId, string subscriptionId, ReceiverSetup receiver = null, SenderSetup sender = null)
+        public static IServiceCollection AddStorageQueueSingleton<T>(this IServiceCollection services, string instanceName, string tenantId, string subscriptionId, ReceiverConfig receiver = null, SenderConfig sender = null)
             where T : IMessageOperations
         {
             return services.AddStorageQueueSingletonNamed<T>(null, instanceName, tenantId, subscriptionId, receiver, sender);
@@ -42,7 +42,7 @@
         /// <param name="receiver">Receiver configuration (if any).</param>
         /// <param name="sender">Sender configuration (if any).</param>
         /// <returns>Modified service collection with the IReactiveMessenger, IMessenger and NamedInstanceFactory{T} configured.</returns>
-        public static IServiceCollection AddStorageQueueSingletonNamed<T>(this IServiceCollection services, string key, string instanceName, string tenantId, string subscriptionId, ReceiverSetup receiver = null, SenderSetup sender = null)
+        public static IServiceCollection AddStorageQueueSingletonNamed<T>(this IServiceCollection services, string key, string instanceName, string tenantId, string subscriptionId, ReceiverConfig receiver = null, SenderConfig sender = null)
             where T : IMessageOperations
         {
             var storageQueueInstance = new StorageQueueMessenger(new MsiConfig
