@@ -207,7 +207,7 @@
             }
         }
 
-        private async Task<List<MessageEntity<T>>> GetMessages<T>(int batchSize = 10)
+        private async Task<IEnumerable<MessageEntity<T>>> GetMessages<T>(int batchSize = 10)
             where T : class
         {
             var messages = (await ReceiverQueue.GetMessagesAsync(batchSize)).ToList();
@@ -597,7 +597,7 @@
         /// <typeparam name="T">Type of object of the entity.</typeparam>
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns>IMessageItem&lt;T&gt;.</returns>
-        public async Task<List<T>> ReceiveBatch<T>(int batchSize) where T : class
+        public async Task<IEnumerable<T>> ReceiveBatch<T>(int batchSize) where T : class
         {
             Monitor.Enter(ReceiveGate);
             try
@@ -616,7 +616,7 @@
         /// <typeparam name="T">Generic type.</typeparam>
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns>IMessageEntity&lt;T&gt;.</returns>
-        public async Task<List<IMessageEntity<T>>> ReceiveBatchEntity<T>(int batchSize) where T : class
+        public async Task<IEnumerable<IMessageEntity<T>>> ReceiveBatchEntity<T>(int batchSize) where T : class
         {
             Monitor.Enter(ReceiveGate);
             try
@@ -632,46 +632,6 @@
             {
                 Monitor.Exit(ReceiveGate);
             }
-        }
-
-        /// <summary>
-        /// [NOT IMPLEMENTED FOR THIS PROVIDER]
-        /// Receives a batch of deferred messages of type IMessageEntity types.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="identities">The list of identities pertaining to the batch</param>
-        /// <returns>IMessageEntity&lt;T&gt;.</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task<List<IMessageEntity<T>>> ReceiveDeferredBatchEntity<T>(IEnumerable<long> identities) where T : class
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// [NOT IMPLEMENTED FOR THIS PROVIDER]
-        /// Defers a message in the the queue.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="message">The message we want to abandon.</param>
-        /// <param name="propertiesToModify">The message properties to modify on abandon.</param>
-        /// <returns>The async <see cref="T:System.Threading.Tasks.Task" /> wrapper.</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task Defer<T>(T message, KeyValuePair<string, object>[] propertiesToModify = null) where T : class
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// [NOT IMPLEMENTED FOR THIS PROVIDER]
-        /// Receives a batch of deferred messages of type T.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="identities">The list of identities pertaining to the batch.</param>
-        /// <returns>IMessageItem&lt;T&gt;.</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Task<List<T>> ReceiveDeferredBatch<T>(IEnumerable<long> identities) where T : class
-        {
-            throw new NotImplementedException();
         }
     }
 }
