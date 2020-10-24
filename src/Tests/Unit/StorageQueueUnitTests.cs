@@ -211,6 +211,47 @@ namespace Cloud.Core.Messaging.AzureStorageQueue.Tests.Unit
             serviceCollection.ContainsService(typeof(IMessenger)).Should().BeFalse();
             serviceCollection.ContainsService(typeof(INamedInstance)).Should().BeFalse();
 
+            serviceCollection.AddStorageQueueSingleton<IMessenger>("test", "test", "test");
+            serviceCollection.ContainsService(typeof(IMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<IMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton("test", "test", "test");
+            serviceCollection.ContainsService(typeof(StorageQueueMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<StorageQueueMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton<IMessenger>(new MsiConfig { TenantId = "test", SubscriptionId = "test", InstanceName = "test" });
+            serviceCollection.ContainsService(typeof(IMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<IMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton(new MsiConfig { TenantId = "test", SubscriptionId = "test", InstanceName = "test" });
+            serviceCollection.ContainsService(typeof(StorageQueueMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<StorageQueueMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton(new ServicePrincipleConfig { TenantId = "test", SubscriptionId = "test", AppId = "test", AppSecret = "test", InstanceName = "test" });
+            serviceCollection.ContainsService(typeof(StorageQueueMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<StorageQueueMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton(new ConnectionConfig { ConnectionString = "test" });
+            serviceCollection.ContainsService(typeof(StorageQueueMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<StorageQueueMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton<IMessenger>(new ConnectionConfig { ConnectionString = "test" });
+            serviceCollection.ContainsService(typeof(IMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<IMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingleton<IReactiveMessenger>(new ServicePrincipleConfig { TenantId = "test", SubscriptionId = "test", AppId = "test", AppSecret = "test", InstanceName = "test" });
+            serviceCollection.ContainsService(typeof(IReactiveMessenger)).Should().BeTrue();
+            serviceCollection.ContainsService(typeof(NamedInstanceFactory<IReactiveMessenger>)).Should().BeTrue();
+            serviceCollection.Clear();
+
+            serviceCollection.AddStorageQueueSingletonNamed("QS0", "instance1", "test", "test");
             serviceCollection.AddStorageQueueSingletonNamed<IReactiveMessenger>("QS1", "queueStorageInstance1", "test", "test");
             serviceCollection.AddStorageQueueSingletonNamed<IMessenger>("QS2", "queueStorageInstance2", "test", "test");
             serviceCollection.AddStorageQueueSingleton<IReactiveMessenger>("queueStorageInstance3", "test", "test");
